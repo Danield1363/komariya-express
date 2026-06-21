@@ -1,3 +1,2 @@
-name = "komaniya-express"
-compatibility_date = "2026-06-21"
-pages_build_output_dir = "out"
+# wrangler.toml
+name = 'komariya-express'

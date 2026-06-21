@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-komaniya-lime: #C6E63A;
+  --color-komaniya-green: #8BCB1F;
+  --color-komaniya-medium: #4FAE2C;
+  --color-komaniya-dark: #1E6D1D;
+  --color-komaniya-darker: #0F4A13;
+  --color-komaniya-cream: #F8F7EE;
+  --color-komaniya-beige: #E6D6B3;
+  --color-komaniya-gold: #C8A55A;
+  --color-komaniya-card: #FFFFFF;
+  --color-komaniya-card-hover: #F0EFE5;
+  --color-komaniya-border: #E0DFD5;
+  --color-komaniya-text: #3A3A3A;
+  --color-komaniya-text-dim: #6B6B6B;
+  --color-komaniya-text-bright: #1A1A1A;
+  --color-komaniya-success: #4FAE2C;
+  --color-komaniya-danger: #D32F2F;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --background: #F8F7EE;
+  --foreground: #3A3A3A;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #C8A55A #F8F7EE;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #F8F7EE;
+  color: #3A3A3A;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(139, 203, 31, 0.15), 0 0 40px rgba(139, 203, 31, 0.05);
+}
+
+.glow-lime {
+  box-shadow: 0 0 20px rgba(198, 230, 58, 0.2), 0 0 40px rgba(198, 230, 58, 0.08);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(200, 165, 90, 0.2), 0 0 40px rgba(200, 165, 90, 0.08);
+}
+
+.text-glow-green {
+  text-shadow: 0 0 10px rgba(139, 203, 31, 0.3);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 10px rgba(200, 165, 90, 0.3);
+}
+
+.text-glow-lime {
+  text-shadow: 0 0 10px rgba(198, 230, 58, 0.4);
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #C8A55A, #E0C080);
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #8BCB1F, #C6E63A);
+}
+
+.gradient-lime {
+  background: linear-gradient(135deg, #C6E63A, #D4ED4A);
+}
+
+.gradient-bg {
+  background: radial-gradient(ellipse at 50% 0%, rgba(139, 203, 31, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(79, 174, 44, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(200, 165, 90, 0.03) 0%, transparent 50%);
+}
+
+.card-border {
+  border: 1px solid #E0DFD5;
+}
+
+.card-border:hover {
+  border-color: rgba(139, 203, 31, 0.4);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8BCB1F, #C6E63A);
+  color: #0F4A13;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(139, 203, 31, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #4FAE2C;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid #4FAE2C;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(79, 174, 44, 0.1);
+  box-shadow: 0 0 15px rgba(79, 174, 44, 0.2);
+}
+
+.btn-discord {
+  background: #5865F2;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-discord:hover {
+  background: #4752C4;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+  transform: translateY(-1px);
+}
+
+.input-field {
+  background: #FFFFFF;
+  border: 1px solid #E0DFD5;
+  color: #3A3A3A;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  width: 100%;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #4FAE2C;
+  box-shadow: 0 0 0 3px rgba(79, 174, 44, 0.1);
+}
+
+.input-field::placeholder {
+  color: #6B6B6B;
+}

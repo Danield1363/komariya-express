@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/servicos/farm-primogemas"
+                  href="/servicos"
                   className="text-komaniya-cream/60 text-sm hover:text-komaniya-cream transition-colors"
                 >
                   Farm de Primogemas

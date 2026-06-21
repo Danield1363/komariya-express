@@ -16,12 +16,12 @@ export default function CarrinhoPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated || !user) {
       router.push("/login");
       return;
     }
-    const order = store.createOrder(user.id, user.name, items);
+    const order = await store.createOrder(user.id, user.name, items);
     setOrderId(order.id);
     clearCart();
     setOrderPlaced(true);

@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { CartItem as CartItemType, Product } from "@/types";
-import { store } from "@/data/store";
 
 interface CartContextType {
   items: CartItemType[];
@@ -16,13 +15,25 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-function getInitialCart(): CartItemType[] {
+const CART_KEY = "komaniya_cart";
+
+function getStoredCart(): CartItemType[] {
   if (typeof window === "undefined") return [];
-  return store.getCart();
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setStoredCart(items: CartItemType[]): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItemType[]>(getInitialCart);
+  const [items, setItems] = useState<CartItemType[]>(getStoredCart);
 
   const addItem = useCallback((product: Product, quantity = 1) => {
     setItems((prev) => {
@@ -30,7 +41,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const next = existing
         ? prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + quantity } : i)
         : [...prev, { id: product.id, product, quantity }];
-      store.setCart(next);
+      setStoredCart(next);
       return next;
     });
   }, []);
@@ -38,7 +49,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeItem = useCallback((productId: string) => {
     setItems((prev) => {
       const next = prev.filter((i) => i.product.id !== productId);
-      store.setCart(next);
+      setStoredCart(next);
       return next;
     });
   }, []);
@@ -50,14 +61,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     setItems((prev) => {
       const next = prev.map((i) => i.product.id === productId ? { ...i, quantity } : i);
-      store.setCart(next);
+      setStoredCart(next);
       return next;
     });
   }, [removeItem]);
 
   const clearCart = useCallback(() => {
     setItems([]);
-    store.clearCart();
+    setStoredCart([]);
   }, []);
 
   const total = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);

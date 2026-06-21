@@ -8,7 +8,7 @@ import {
   TrendingUp, Shield, ShieldOff, Trash2,
 } from "lucide-react";
 import { store } from "@/data/store";
-import { OrderStatus } from "@/types";
+import { Order, OrderStatus } from "@/types";
 
 const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string }> = {
   pending: { label: "Pendente", icon: Clock, color: "text-komaniya-gold", bg: "bg-komaniya-gold/10" },
@@ -20,20 +20,27 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentTy
 type Tab = "dashboard" | "orders" | "users";
 
 export default function AdminPage() {
-  const { user, isAuthenticated, isAdmin } = useAuth();
+  const { user, isAuthenticated, isAdmin, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [stats, setStats] = useState({ totalUsers: 0, totalOrders: 0, totalRevenue: 0, pendingOrders: 0 });
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<{ id: string; name: string; email: string; role: string; avatar: string; createdAt: string }[]>([]);
 
   useEffect(() => {
-    if (!isAuthenticated || !isAdmin) router.push("/");
-  }, [isAuthenticated, isAdmin, router]);
+    if (!loading && (!isAuthenticated || !isAdmin)) router.push("/");
+  }, [isAuthenticated, isAdmin, loading, router]);
 
-  if (!isAuthenticated || !isAdmin) return null;
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      store.getStats().then(setStats);
+      store.getAllOrders().then(setOrders);
+      store.getAllUsers().then(setUsers);
+    }
+  }, [isAuthenticated, isAdmin, refreshKey]);
 
-  const stats = store.getStats();
-  const orders = store.getAllOrders();
-  const users = store.getAllUsers();
+  if (loading || !isAuthenticated || !isAdmin) return null;
 
   const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -41,19 +48,19 @@ export default function AdminPage() {
     { id: "users", label: "Usuários", icon: Users },
   ];
 
-  const handleStatusChange = (orderId: string, status: OrderStatus) => {
-    store.updateOrderStatus(orderId, status);
+  const handleStatusChange = async (orderId: string, status: OrderStatus) => {
+    await store.updateOrderStatus(orderId, status);
     setRefreshKey((k) => k + 1);
   };
 
-  const handleRoleToggle = (userId: string, currentRole: string) => {
-    store.updateUserRole(userId, currentRole === "admin" ? "user" : "admin");
+  const handleRoleToggle = async (userId: string, currentRole: string) => {
+    await store.updateUserRole(userId, currentRole === "admin" ? "user" : "admin");
     setRefreshKey((k) => k + 1);
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (confirm("Tem certeza que deseja excluir este usuário?")) {
-      store.deleteUser(userId);
+      await store.deleteUser(userId);
       setRefreshKey((k) => k + 1);
     }
   };

@@ -2,10 +2,10 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Calendar, Package, Clock, CheckCircle, XCircle, LogOut } from "lucide-react";
 import { store } from "@/data/store";
-import { OrderStatus } from "@/types";
+import { Order, OrderStatus } from "@/types";
 
 const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string }> = {
   pending: { label: "Pendente", icon: Clock, color: "text-komaniya-gold", bg: "bg-komaniya-gold/10" },
@@ -15,16 +15,21 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentTy
 };
 
 export default function PerfilPage() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, loading } = useAuth();
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
-  }, [isAuthenticated, router]);
+    if (!loading && !isAuthenticated) router.push("/login");
+  }, [isAuthenticated, loading, router]);
 
-  if (!isAuthenticated || !user) return null;
+  useEffect(() => {
+    if (user) {
+      store.getOrdersByUser(user.id).then(setOrders);
+    }
+  }, [user]);
 
-  const orders = store.getOrdersByUser(user.id);
+  if (loading || !isAuthenticated || !user) return null;
 
   return (
     <section className="py-12 px-4 sm:px-6 lg:px-8">

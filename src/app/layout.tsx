@@ -12,6 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://komaniyaexpress.com.br"),
   title: {
     default: "Komaniya Express - Farm de Primogemas Profissional",
     template: "%s | Komaniya Express",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Komaniya Express",
     title: "Komaniya Express - Farm de Primogemas Profissional",
     description: "Serviço profissional de farm de Primogemas para Genshin Impact.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Komaniya Express" }],
+    images: [{ url: "/banner.jpg", width: 1200, height: 630, alt: "Komaniya Express" }],
   },
   robots: { index: true, follow: true },
 };

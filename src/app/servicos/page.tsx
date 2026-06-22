@@ -3,10 +3,10 @@
 import { useState, useMemo } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Mountain, Swords, Gem, Search, Check, TrendingDown, TrendingUp, Minus, ShoppingCart } from "lucide-react";
+import { Mountain, Swords, Gem, Search, Check, TrendingDown, TrendingUp, Minus, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
-type Tab = "exploracao" | "endgame" | "giros";
+type Tab = "exploracao" | "endgame" | "giros" | "conta";
 
 const girosData = {
   baixa: {
@@ -124,6 +124,9 @@ export default function ServicosPage() {
             <button onClick={() => setTab("giros")} className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${tab === "giros" ? "bg-komaniya-lime text-komaniya-darker shadow-lg shadow-komaniya-lime/20" : "bg-komaniya-card card-border text-komaniya-text-dim hover:text-komaniya-text"}`}>
               <Gem className="w-4 h-4" /> Giros
             </button>
+            <button onClick={() => setTab("conta")} className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${tab === "conta" ? "bg-komaniya-medium text-white shadow-lg shadow-komaniya-medium/20" : "bg-komaniya-card card-border text-komaniya-text-dim hover:text-komaniya-text"}`}>
+              <User className="w-4 h-4" /> Conta
+            </button>
           </div>
 
           {tab === "exploracao" && (
@@ -146,7 +149,7 @@ export default function ServicosPage() {
           </div>
         )}
 
-        {(tab === "exploracao" || tab === "endgame") && (
+        {(tab === "exploracao" || tab === "endgame" || tab === "conta") && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -154,7 +157,7 @@ export default function ServicosPage() {
           </div>
         )}
 
-        {tab === "exploracao" || tab === "endgame" ? (
+        {tab === "exploracao" || tab === "endgame" || tab === "conta" ? (
           filtered.length === 0 && (
             <div className="text-center py-16">
               <p className="text-komaniya-text-dim">Nenhum serviço encontrado.</p>

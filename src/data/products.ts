@@ -29,6 +29,13 @@ export const products: Product[] = [
   { id: "eg-confronto-abissal", name: "Confronto Abissal Completo", price: 15.0, category: "endgame", description: "Confronto Abissal completo", available: true },
   { id: "eg-rastro", name: "Rastro", price: 4.0, category: "endgame", description: "Serviço de Rastro", available: true },
   { id: "eg-pacote-3", name: "Pacote dos Três End Games", price: 35.0, category: "endgame", description: "Pacote completo dos 3 End Games", available: true },
+
+  { id: "ct-ascensao-personagem", name: "Ascensão de Personagem 1~90", price: 20.0, category: "conta", description: "Ascensão completa do personagem do nível 1 ao 90", available: true },
+  { id: "ct-talentos-3", name: "UP de 3 Talentos (1 ao 10)", price: 32.0, category: "conta", description: "3 talentos do nível 1 ao 10", available: true },
+  { id: "ct-talentos-1", name: "UP de 1 Talento (1 ao 10)", price: 12.0, category: "conta", description: "1 talento do nível 1 ao 10", available: true },
+  { id: "ct-ascensao-arma", name: "Ascensão de Arma 1~90", price: 20.0, category: "conta", description: "Ascensão completa da arma do nível 1 ao 90", available: true },
+  { id: "ct-build-basica", name: "Build Básica", price: 10.0, category: "conta", description: "Artefatos T5 nível 20 com peças medianas", available: true },
+  { id: "ct-build-excelente", name: "Build Excelente", price: 25.0, category: "conta", description: "Artefatos T5 nível 20 com peças excelentes", available: true },
 ];
 
 export const testimonials = [

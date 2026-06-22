@@ -23,7 +23,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  category: "exploracao" | "endgame";
+  category: "exploracao" | "endgame" | "conta";
   region?: string;
   description?: string;
   available: boolean;

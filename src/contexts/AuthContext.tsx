@@ -170,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await sb.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/perfil/`,
         scopes: "identify email",
       },
     });

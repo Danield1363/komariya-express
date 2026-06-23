@@ -65,11 +65,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (supabaseUser: SupabaseUser) => {
     const sb = getSupabase();
     const role = await resolveUserRole(sb, supabaseUser);
-    const { data: profile } = await sb
+    let { data: profile } = await sb
       .from("profiles")
       .select("name, role, avatar, created_at, discord_id, discord_username, discord_avatar")
       .eq("id", supabaseUser.id)
       .single();
+
+    if (!profile) {
+      const displayName = supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email || "Usuário";
+      const avatarUrl = supabaseUser.user_metadata?.avatar_url;
+      const initials = avatarUrl ? displayName.charAt(0).toUpperCase() : displayName.slice(0, 2).toUpperCase();
+
+      const { data: newProfile } = await sb
+        .from("profiles")
+        .insert({
+          id: supabaseUser.id,
+          name: displayName,
+          email: supabaseUser.email || "",
+          avatar: initials,
+          discord_id: supabaseUser.user_metadata?.provider_id || null,
+          discord_username: supabaseUser.user_metadata?.full_name || null,
+          discord_avatar: avatarUrl || null,
+          role,
+        })
+        .select("name, role, avatar, created_at, discord_id, discord_username, discord_avatar")
+        .single();
+
+      profile = newProfile;
+    }
 
     if (profile && profile.role !== role) {
       await sb.from("profiles").update({ role }).eq("id", supabaseUser.id);

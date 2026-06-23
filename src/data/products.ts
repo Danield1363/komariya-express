@@ -54,6 +54,7 @@ export const faqItems = [
   { id: 4, question: "Quais formas de pagamento são aceitas?", answer: "Atualmente aceitamos pagamento via Discord. Em breve teremos integração com Mercado Pago, PIX, Stripe e PayPal." },
   { id: 5, question: "Posso acompanhar o progresso?", answer: "Sim! Você receberá atualizações periódicas pelo Discord sobre o progresso do farm." },
   { id: 6, question: "E se minha conta for banida?", answer: "Nossos métodos são seguros e manuais, minimizando qualquer risco. Em caso de problemas, oferecemos reembolso total." },
+  { id: 7, question: "Vocês também fazem serviços com script?", answer: "Sim! Oferecemos serviços automatizados com scripts para tarefas repetitivas como coleta de materiais e exploração de mapa. Todos os scripts são testados e seguros para uso." },
 ];
 
 export const DISCORD_LINK = "https://discord.gg/8WWNGs8hkD";

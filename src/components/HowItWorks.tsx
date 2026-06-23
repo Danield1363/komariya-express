@@ -1,20 +1,20 @@
 "use client";
 
-import { MessageCircle, CreditCard, Gamepad2, CheckCircle } from "lucide-react";
+import { ShoppingCart, MessageCircle, Gamepad2, CheckCircle } from "lucide-react";
 
 const steps = [
   {
-    icon: MessageCircle,
-    title: "Entre em Contato",
+    icon: ShoppingCart,
+    title: "Escolha & Compre",
     description:
-      "Entre no nosso servidor do Discord e abra um ticket com sua solicitação.",
+      "Adicione os serviços ao carrinho e finalize o pedido de forma rápida e segura.",
     color: "green",
   },
   {
-    icon: CreditCard,
-    title: "Escolha & Pague",
+    icon: MessageCircle,
+    title: "Chat Interno",
     description:
-      "Selecione o pacote desejado e realize o pagamento de forma segura.",
+      "Acesse o chat do seu pedido e converse diretamente com nosso time em tempo real.",
     color: "gold",
   },
   {
@@ -28,7 +28,7 @@ const steps = [
     icon: CheckCircle,
     title: "Pronto!",
     description:
-      "Receba suas primogemas e volte a jogar! Acompanhe o progresso pelo Discord.",
+      "Receba suas primogemas e volte a jogar! Acompanhe o progresso pelo painel.",
     color: "success",
   },
 ];

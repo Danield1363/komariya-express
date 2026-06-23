@@ -3,8 +3,7 @@
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle, ExternalLink, CheckCircle } from "lucide-react";
-import { DISCORD_LINK } from "@/data/products";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CheckCircle, MessageCircle } from "lucide-react";
 import { store } from "@/data/store";
 import { useState } from "react";
 import Link from "next/link";
@@ -15,16 +14,24 @@ export default function CarrinhoPage() {
   const router = useRouter();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [description, setDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCheckout = async () => {
     if (!isAuthenticated || !user) {
       router.push("/login");
       return;
     }
-    const order = await store.createOrder(user.id, user.name, items);
-    setOrderId(order.id);
-    clearCart();
-    setOrderPlaced(true);
+    setSubmitting(true);
+    try {
+      const order = await store.createOrder(user.id, user.name, items, description);
+      setOrderId(order.id);
+      clearCart();
+      setOrderPlaced(true);
+    } catch {
+      alert("Erro ao criar pedido. Tente novamente.");
+    }
+    setSubmitting(false);
   };
 
   if (orderPlaced) {
@@ -36,12 +43,11 @@ export default function CarrinhoPage() {
           </div>
           <h1 className="text-3xl font-bold text-komaniya-text-bright mb-3">Pedido Realizado!</h1>
           <p className="text-komaniya-text-dim mb-2">Seu pedido <span className="font-mono font-bold text-komaniya-gold">{orderId}</span> foi criado com sucesso.</p>
-          <p className="text-sm text-komaniya-text-dim mb-8">Entre no Discord para finalizar o pagamento e acompanhar o progresso.</p>
+          <p className="text-sm text-komaniya-text-dim mb-8">Um funcionário será atribuído em breve. Acompanhe pelo chat interno.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href={DISCORD_LINK} target="_blank" rel="noopener noreferrer" className="btn-discord flex items-center justify-center gap-2">
-              <MessageCircle className="w-4 h-4" /> Finalizar no Discord
-              <ExternalLink className="w-3.5 h-3.5 opacity-60" />
-            </a>
+            <Link href={`/pedidos?id=${orderId}`} className="btn-discord flex items-center justify-center gap-2">
+              <MessageCircle className="w-4 h-4" /> Acompanhar Pedido
+            </Link>
             <Link href="/perfil" className="btn-secondary flex items-center justify-center gap-2">
               Ver Meus Pedidos
             </Link>
@@ -120,17 +126,31 @@ export default function CarrinhoPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-komaniya-border pt-4 mb-6">
+              <div className="border-t border-komaniya-border pt-4 mb-4">
                 <div className="flex justify-between">
                   <span className="font-semibold text-komaniya-text-bright">Total</span>
                   <span className="text-2xl font-black text-komaniya-gold">R$ {total.toFixed(2)}</span>
                 </div>
               </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-komaniya-text-bright mb-2">Descrição (opcional)</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Detalhes adicionais sobre o pedido..."
+                  className="input-field min-h-[80px] resize-none text-sm"
+                />
+              </div>
               <button
                 onClick={handleCheckout}
-                className="btn-primary w-full flex items-center justify-center gap-2"
+                disabled={submitting}
+                className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isAuthenticated ? "Finalizar Pedido" : "Faça Login para Comprar"}
+                {submitting ? (
+                  <div className="w-5 h-5 border-2 border-komaniya-darker border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  isAuthenticated ? "Finalizar Pedido" : "Faça Login para Comprar"
+                )}
               </button>
               {!isAuthenticated && (
                 <p className="text-xs text-komaniya-text-dim text-center mt-3">

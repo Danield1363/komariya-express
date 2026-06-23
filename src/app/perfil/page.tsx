@@ -3,9 +3,10 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Mail, Calendar, Package, Clock, CheckCircle, XCircle, LogOut } from "lucide-react";
+import { Mail, Calendar, Package, Clock, CheckCircle, XCircle, LogOut, MessageCircle } from "lucide-react";
 import { store } from "@/data/store";
 import { Order, OrderStatus } from "@/types";
+import Link from "next/link";
 
 const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string }> = {
   pending: { label: "Pendente", icon: Clock, color: "text-komaniya-gold", bg: "bg-komaniya-gold/10" },
@@ -40,9 +41,17 @@ export default function PerfilPage() {
           <div className="lg:col-span-1">
             <div className="bg-komaniya-card card-border rounded-2xl p-6">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 mx-auto rounded-full gradient-green flex items-center justify-center text-komaniya-darker text-2xl font-bold mb-3">{user.avatar}</div>
+                {user.discordAvatar ? (
+                  <img src={user.discordAvatar} alt="" className="w-20 h-20 mx-auto rounded-full mb-3" />
+                ) : (
+                  <div className="w-20 h-20 mx-auto rounded-full gradient-green flex items-center justify-center text-komaniya-darker text-2xl font-bold mb-3">{user.avatar}</div>
+                )}
                 <h2 className="text-xl font-bold text-komaniya-text-bright">{user.name}</h2>
+                {user.discordUsername && (
+                  <p className="text-xs text-komaniya-text-dim mt-1">@{user.discordUsername}</p>
+                )}
                 {user.role === "admin" && <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-komaniya-gold/10 text-komaniya-gold text-xs font-medium">Administrador</span>}
+                {user.role === "employee" && <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-komaniya-medium/10 text-komaniya-medium text-xs font-medium">Funcionário</span>}
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm"><Mail className="w-4 h-4 text-komaniya-text-dim" /><span className="text-komaniya-text">{user.email}</span></div>
@@ -78,8 +87,24 @@ export default function PerfilPage() {
                           {order.items.map((i) => i.productName).join(", ")}
                         </div>
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-komaniya-border/30">
-                          <span className="text-xs text-komaniya-text-dim">{order.createdAt}</span>
-                          <span className="text-sm font-bold text-komaniya-gold">R$ {order.totalPrice.toFixed(2)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-komaniya-text-dim">{order.createdAt}</span>
+                            {order.employeeName && (
+                              <span className="text-xs text-komaniya-medium">· {order.employeeName}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-komaniya-gold">R$ {order.totalPrice.toFixed(2)}</span>
+                            {(order.status === "in_progress" || order.status === "pending") && (
+                              <Link
+                                href={`/pedidos?id=${order.id}`}
+                                className="p-1.5 rounded-lg bg-komaniya-green/10 text-komaniya-medium hover:bg-komaniya-green/20 transition-colors"
+                                title="Abrir chat"
+                              >
+                                <MessageCircle className="w-4 h-4" />
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

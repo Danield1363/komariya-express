@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,9 +44,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <CartProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <NotificationProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </NotificationProvider>
           </CartProvider>
         </AuthProvider>
       </body>

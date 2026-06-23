@@ -107,16 +107,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        const publicUser = await fetchProfile(session.user);
-        setUser(publicUser);
+        try {
+          const publicUser = await fetchProfile(session.user);
+          setUser(publicUser);
+        } catch (err) {
+          console.error("Erro ao buscar profile:", err);
+          setUser({
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email || "Usuário",
+            email: session.user.email || "",
+            role: "client",
+            avatar: "U",
+            createdAt: new Date().toISOString().split("T")[0],
+          });
+        }
       }
       setLoading(false);
     }).catch(() => setLoading(false));
 
     const { data: { subscription } } = sb.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        const publicUser = await fetchProfile(session.user);
-        setUser(publicUser);
+        try {
+          const publicUser = await fetchProfile(session.user);
+          setUser(publicUser);
+        } catch (err) {
+          console.error("Erro ao buscar profile:", err);
+          setUser({
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email || "Usuário",
+            email: session.user.email || "",
+            role: "client",
+            avatar: "U",
+            createdAt: new Date().toISOString().split("T")[0],
+          });
+        }
       } else {
         setUser(null);
       }

@@ -64,7 +64,11 @@ export const store = {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar pedidos do usuário:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((o) => ({
       id: o.id,
@@ -90,7 +94,11 @@ export const store = {
       .eq("employee_id", employeeId)
       .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar pedidos do funcionário:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((o) => ({
       id: o.id,
@@ -112,23 +120,36 @@ export const store = {
     const sb = getSupabase();
     const { data, error } = await sb
       .from("orders")
-      .select("*, profiles!orders_employee_id_fkey(name)")
+      .select("*")
       .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar pedidos:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
-    return data.map((o: Record<string, unknown>) => ({
-      id: o.id as string,
-      userId: o.user_id as string,
-      userName: o.user_name as string,
-      description: (o.description as string) || "",
-      items: o.items as Order["items"],
-      totalPrice: o.total_price as number,
-      status: o.status as OrderStatus,
-      priority: (o.priority as OrderPriority) || "normal",
-      employeeId: o.employee_id as string | null,
-      employeeName: (o.profiles as { name: string } | null)?.name || undefined,
-      assignedAt: o.assigned_at as string | null,
+    const employeeIds = [...new Set(data.map((o) => o.employee_id).filter(Boolean))] as string[];
+    const employeeNames: Record<string, string> = {};
+    if (employeeIds.length > 0) {
+      const { data: profiles } = await sb.from("profiles").select("id, name").in("id", employeeIds);
+      if (profiles) {
+        profiles.forEach((p) => { employeeNames[p.id] = p.name; });
+      }
+    }
+
+    return data.map((o) => ({
+      id: o.id,
+      userId: o.user_id,
+      userName: o.user_name,
+      description: o.description || "",
+      items: o.items,
+      totalPrice: o.total_price,
+      status: o.status,
+      priority: o.priority || "normal",
+      employeeId: o.employee_id,
+      employeeName: o.employee_id ? employeeNames[o.employee_id] : undefined,
+      assignedAt: o.assigned_at,
       completedAt: o.completed_at as string | null,
       createdAt: o.created_at as string,
     }));
@@ -142,7 +163,11 @@ export const store = {
       .eq("status", "pending")
       .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar pedidos pendentes:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((o) => ({
       id: o.id,
@@ -200,7 +225,11 @@ export const store = {
   async getAllUsers(): Promise<PublicUser[]> {
     const sb = getSupabase();
     const { data, error } = await sb.from("profiles").select("*");
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar usuários:", error.message);
+      return [];
+    }
+    if (!data) return [];
     return data.map((u) => ({
       id: u.id,
       name: u.name,
@@ -237,7 +266,11 @@ export const store = {
       .select("*, profiles!employee_status_employee_id_fkey(name, avatar)")
       .order("availability", { ascending: true });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar status dos funcionários:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((e: Record<string, unknown>) => ({
       employeeId: e.employee_id as string,
@@ -289,7 +322,11 @@ export const store = {
       .eq("order_id", orderId)
       .order("created_at", { ascending: true });
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar mensagens:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((m) => ({
       id: m.id,
@@ -317,7 +354,11 @@ export const store = {
     };
 
     const { data, error } = await sb.from("messages").insert(msg).select().single();
-    if (error || !data) return null;
+    if (error) {
+      console.error("Erro ao enviar mensagem:", error.message);
+      return null;
+    }
+    if (!data) return null;
 
     return {
       id: data.id,
@@ -370,7 +411,11 @@ export const store = {
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (error || !data) return [];
+    if (error) {
+      console.error("Erro ao buscar notificações:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
     return data.map((n) => ({
       id: n.id,
@@ -429,9 +474,13 @@ export const store = {
 
   async getStats() {
     const sb = getSupabase();
-    const { data: orders } = await sb.from("orders").select("total_price, status, created_at");
-    const { data: profiles } = await sb.from("profiles").select("id, role");
-    const { data: employees } = await sb.from("employee_status").select("availability");
+    const { data: orders, error: ordersErr } = await sb.from("orders").select("total_price, status, created_at");
+    const { data: profiles, error: profilesErr } = await sb.from("profiles").select("id, role");
+    const { data: employees, error: employeesErr } = await sb.from("employee_status").select("availability");
+
+    if (ordersErr) console.error("Erro ao buscar stats (orders):", ordersErr.message);
+    if (profilesErr) console.error("Erro ao buscar stats (profiles):", profilesErr.message);
+    if (employeesErr) console.error("Erro ao buscar stats (employees):", employeesErr.message);
 
     const allOrders = orders || [];
     const allProfiles = profiles || [];

@@ -1,4 +1,4 @@
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, getSupabaseAuthenticated } from "@/lib/supabase";
 import {
   Order, OrderStatus, OrderPriority, PublicUser, CartItem,
   Message, EmployeeStatus, EmployeeAvailability, Notification, UserRole,
@@ -14,8 +14,9 @@ export const store = {
   // =============================================
 
   async createOrder(userId: string, userName: string, items: CartItem[], description?: string): Promise<Order> {
-    const sb = getSupabase();
+    const sb = await getSupabaseAuthenticated();
     const orderId = "ORD-" + generateId().toUpperCase();
+    const now = new Date().toISOString();
     const order = {
       id: orderId,
       user_id: userId,
@@ -30,10 +31,14 @@ export const store = {
       total_price: items.reduce((sum, ci) => sum + ci.product.price * ci.quantity, 0),
       status: "pending" as OrderStatus,
       priority: "normal" as OrderPriority,
+      created_at: now,
     };
 
     const { error } = await sb.from("orders").insert(order);
-    if (error) throw error;
+    if (error) {
+      console.error("Erro ao criar pedido no Supabase:", error);
+      throw error;
+    }
 
     return {
       id: order.id,

@@ -28,8 +28,10 @@ export default function CarrinhoPage() {
       setOrderId(order.id);
       clearCart();
       setOrderPlaced(true);
-    } catch {
-      alert("Erro ao criar pedido. Tente novamente.");
+    } catch (error) {
+      console.error("Erro ao criar pedido:", error);
+      const msg = error instanceof Error ? error.message : "Erro ao criar pedido. Tente novamente.";
+      alert(msg);
     }
     setSubmitting(false);
   };

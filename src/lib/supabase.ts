@@ -19,17 +19,7 @@ export function getSupabase(): SupabaseClient {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-      storage: typeof window !== "undefined" ? window.localStorage : undefined,
     },
   });
   return client;
-}
-
-export async function getSupabaseAuthenticated(): Promise<SupabaseClient> {
-  const sb = getSupabase();
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) {
-    throw new Error("Sessão expirada. Faça login novamente.");
-  }
-  return sb;
 }

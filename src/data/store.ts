@@ -1,4 +1,4 @@
-import { getSupabase, getSupabaseAuthenticated } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import {
   Order, OrderStatus, OrderPriority, PublicUser, CartItem,
   Message, EmployeeStatus, EmployeeAvailability, Notification, UserRole,
@@ -14,7 +14,7 @@ export const store = {
   // =============================================
 
   async createOrder(userId: string, userName: string, items: CartItem[], description?: string): Promise<Order> {
-    const sb = await getSupabaseAuthenticated();
+    const sb = getSupabase();
     const orderId = "ORD-" + generateId().toUpperCase();
     const now = new Date().toISOString();
     const order = {

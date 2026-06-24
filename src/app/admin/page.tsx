@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Package, Users, DollarSign, Clock, CheckCircle, XCircle,
-  TrendingUp, Shield, ShieldOff, Trash2,   UserCheck, MessageCircle,
+  TrendingUp, Shield, ShieldOff, Trash2, UserCheck, UserX, MessageCircle,
   BarChart3, Calendar,
 } from "lucide-react";
 import { store } from "@/data/store";
@@ -37,6 +37,8 @@ export default function AdminPage() {
   const [availableEmployees, setAvailableEmployees] = useState<EmployeeStatus[]>([]);
   const [assigningOrder, setAssigningOrder] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
+  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+  const [employeeOrders, setEmployeeOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || !isAdmin)) router.push("/");
@@ -105,6 +107,16 @@ export default function AdminPage() {
     setRefreshKey((k) => k + 1);
   };
 
+  const handlePromoteToEmployee = async (userId: string) => {
+    await store.updateUserRole(userId, "employee");
+    setRefreshKey((k) => k + 1);
+  };
+
+  const handleDemoteFromEmployee = async (userId: string) => {
+    await store.updateUserRole(userId, "client");
+    setRefreshKey((k) => k + 1);
+  };
+
   const handleDeleteUser = async (userId: string) => {
     if (confirm("Tem certeza que deseja excluir este usuário?")) {
       await store.deleteUser(userId);
@@ -113,6 +125,12 @@ export default function AdminPage() {
   };
 
   const filteredOrders = filterStatus === "all" ? orders : orders.filter((o) => o.status === filterStatus);
+
+  const handleSelectEmployee = async (employeeId: string) => {
+    setSelectedEmployee(employeeId);
+    const empOrders = await store.getOrdersByEmployee(employeeId);
+    setEmployeeOrders(empOrders);
+  };
 
   const roleLabels: Record<string, string> = { admin: "Admin", employee: "Funcionário", client: "Cliente" };
   const roleColors: Record<string, string> = {
@@ -376,7 +394,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {employees.map((emp) => (
-                      <tr key={emp.employeeId} className="border-b border-komaniya-border/50 hover:bg-komaniya-cream/50">
+                      <tr key={emp.employeeId} className={`border-b border-komaniya-border/50 hover:bg-komaniya-cream/50 cursor-pointer ${selectedEmployee === emp.employeeId ? "bg-komaniya-green/5" : ""}`} onClick={() => handleSelectEmployee(emp.employeeId)}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full gradient-green flex items-center justify-center text-komaniya-darker text-xs font-bold">
@@ -420,6 +438,55 @@ export default function AdminPage() {
                 </table>
               </div>
             </div>
+
+            {selectedEmployee && (
+              <div className="bg-komaniya-card card-border rounded-xl overflow-hidden mt-4">
+                <div className="px-4 py-3 border-b border-komaniya-border flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-komaniya-text-bright">
+                    Pedidos de {employees.find((e) => e.employeeId === selectedEmployee)?.employeeName}
+                  </h4>
+                  <button onClick={() => setSelectedEmployee(null)} className="text-xs text-komaniya-text-dim hover:text-komaniya-text">Fechar</button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-komaniya-border">
+                        <th className="text-left px-4 py-3 text-xs font-medium text-komaniya-text-dim uppercase">ID</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-komaniya-text-dim uppercase">Cliente</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-komaniya-text-dim uppercase">Valor</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-komaniya-text-dim uppercase">Status</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-komaniya-text-dim uppercase">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employeeOrders.map((order) => {
+                        const status = statusConfig[order.status];
+                        return (
+                          <tr key={order.id} className="border-b border-komaniya-border/50 hover:bg-komaniya-cream/50">
+                            <td className="px-4 py-3 font-mono text-komaniya-text-dim text-xs">{order.id}</td>
+                            <td className="px-4 py-3 text-komaniya-text-bright">{order.userName}</td>
+                            <td className="px-4 py-3 font-bold text-komaniya-gold">R$ {order.totalPrice.toFixed(2)}</td>
+                            <td className="px-4 py-3">
+                              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${status.bg} ${status.color}`}>
+                                <status.icon className="w-3 h-3" /> {status.label}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Link href={`/pedidos?id=${order.id}`} className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors inline-flex" title="Chat">
+                                <MessageCircle className="w-4 h-4 text-komaniya-text-dim" />
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {employeeOrders.length === 0 && (
+                        <tr><td colSpan={5} className="px-4 py-8 text-center text-komaniya-text-dim">Nenhum pedido atribuído.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -451,13 +518,42 @@ export default function AdminPage() {
                       <td className="px-4 py-3 text-komaniya-text-dim text-xs">{u.createdAt}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleRoleToggle(u.id, u.role)}
-                            className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors"
-                            title={u.role === "admin" ? "Remover admin" : "Promover a admin"}
-                          >
-                            {u.role === "admin" ? <ShieldOff className="w-4 h-4 text-komaniya-gold" /> : <Shield className="w-4 h-4 text-komaniya-text-dim" />}
-                          </button>
+                          {u.role !== "admin" && (
+                            <button
+                              onClick={() => handleRoleToggle(u.id, u.role)}
+                              className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors"
+                              title="Promover a admin"
+                            >
+                              <Shield className="w-4 h-4 text-komaniya-text-dim" />
+                            </button>
+                          )}
+                          {u.role === "admin" && (
+                            <button
+                              onClick={() => handleRoleToggle(u.id, u.role)}
+                              className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors"
+                              title="Rebaixar de admin"
+                            >
+                              <ShieldOff className="w-4 h-4 text-komaniya-gold" />
+                            </button>
+                          )}
+                          {u.role === "client" && (
+                            <button
+                              onClick={() => handlePromoteToEmployee(u.id)}
+                              className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors"
+                              title="Promover a funcionário"
+                            >
+                              <UserCheck className="w-4 h-4 text-komaniya-medium" />
+                            </button>
+                          )}
+                          {u.role === "employee" && (
+                            <button
+                              onClick={() => handleDemoteFromEmployee(u.id)}
+                              className="p-1.5 rounded-lg hover:bg-komaniya-cream transition-colors"
+                              title="Rebaixar a cliente"
+                            >
+                              <UserX className="w-4 h-4 text-komaniya-text-dim" />
+                            </button>
+                          )}
                           {u.id !== user?.id && (
                             <button
                               onClick={() => handleDeleteUser(u.id)}

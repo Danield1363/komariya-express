@@ -246,7 +246,22 @@ export const store = {
   async updateUserRole(userId: string, role: UserRole): Promise<boolean> {
     const sb = getSupabase();
     const { error } = await sb.from("profiles").update({ role }).eq("id", userId);
-    return !error;
+    if (error) return false;
+
+    if (role === "employee") {
+      await sb.from("employee_status").upsert({
+        employee_id: userId,
+        active_orders: 0,
+        max_orders: 3,
+        availability: "offline",
+        last_active: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "employee_id" });
+    } else {
+      await sb.from("employee_status").delete().eq("employee_id", userId);
+    }
+
+    return true;
   },
 
   async deleteUser(userId: string): Promise<boolean> {

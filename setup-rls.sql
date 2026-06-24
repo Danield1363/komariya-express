@@ -33,10 +33,14 @@ CREATE POLICY notif_delete ON notifications FOR DELETE USING (auth.uid() = user_
 DROP POLICY IF EXISTS emp_select ON employee_status;
 DROP POLICY IF EXISTS emp_insert ON employee_status;
 DROP POLICY IF EXISTS emp_update ON employee_status;
+DROP POLICY IF EXISTS emp_delete ON employee_status;
+DROP POLICY IF EXISTS emp_admin_manage ON employee_status;
 
 CREATE POLICY emp_select ON employee_status FOR SELECT USING (true);
 CREATE POLICY emp_insert ON employee_status FOR INSERT WITH CHECK (auth.uid() = employee_id);
 CREATE POLICY emp_update ON employee_status FOR UPDATE USING (auth.uid() = employee_id);
+CREATE POLICY emp_delete ON employee_status FOR DELETE USING (auth.uid() = employee_id);
+CREATE POLICY emp_admin_manage ON employee_status FOR ALL USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 DROP POLICY IF EXISTS profiles_select ON profiles;
 DROP POLICY IF EXISTS profiles_insert ON profiles;

@@ -153,14 +153,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const sb = getSupabase();
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
+      console.error("Erro no login Supabase:", error.message);
       if (error.message.includes("Invalid login")) {
         return { success: false, error: "Email ou senha inválidos." };
       }
       return { success: false, error: error.message };
     }
     if (data.user) {
-      const publicUser = await fetchProfile(data.user);
-      setUser(publicUser);
+      try {
+        const publicUser = await fetchProfile(data.user);
+        setUser(publicUser);
+      } catch (err) {
+        console.error("Erro ao buscar profile após login:", err);
+        setUser({
+          id: data.user.id,
+          name: data.user.user_metadata?.full_name || data.user.email || "Usuário",
+          email: data.user.email || "",
+          role: "client",
+          avatar: "U",
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+      }
     }
     return { success: true };
   }, [fetchProfile]);

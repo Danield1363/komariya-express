@@ -278,7 +278,7 @@ export const store = {
     const sb = getSupabase();
     const { data, error } = await sb
       .from("employee_status")
-      .select("*, profiles!employee_status_employee_id_fkey(name, avatar)")
+      .select("*")
       .order("availability", { ascending: true });
 
     if (error) {
@@ -287,15 +287,22 @@ export const store = {
     }
     if (!data) return [];
 
-    return data.map((e: Record<string, unknown>) => ({
-      employeeId: e.employee_id as string,
-      employeeName: (e.profiles as { name: string } | null)?.name || "Funcionário",
-      employeeAvatar: (e.profiles as { avatar: string } | null)?.avatar || "F",
-      activeOrders: e.active_orders as number,
-      maxOrders: e.max_orders as number,
-      availability: e.availability as EmployeeAvailability,
-      lastActive: e.last_active as string,
-      updatedAt: e.updated_at as string,
+    const employeeIds = data.map((e) => e.employee_id);
+    const { data: profiles } = await sb.from("profiles").select("id, name, avatar").in("id", employeeIds);
+    const profileMap: Record<string, { name: string; avatar: string }> = {};
+    if (profiles) {
+      profiles.forEach((p) => { profileMap[p.id] = { name: p.name, avatar: p.avatar }; });
+    }
+
+    return data.map((e) => ({
+      employeeId: e.employee_id,
+      employeeName: profileMap[e.employee_id]?.name || "Funcionário",
+      employeeAvatar: profileMap[e.employee_id]?.avatar || "F",
+      activeOrders: e.active_orders,
+      maxOrders: e.max_orders,
+      availability: e.availability,
+      lastActive: e.last_active,
+      updatedAt: e.updated_at,
     }));
   },
 

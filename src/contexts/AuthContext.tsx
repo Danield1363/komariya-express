@@ -24,21 +24,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 async function resolveUserRole(sb: ReturnType<typeof getSupabase>, supabaseUser: SupabaseUser): Promise<UserRole> {
-  const discordId = supabaseUser.user_metadata?.provider_id || supabaseUser.app_metadata?.provider_id;
-  if (discordId) {
-    const { data: discordRole } = await sb
-      .from("discord_roles")
+  try {
+    const discordId = supabaseUser.user_metadata?.provider_id || supabaseUser.app_metadata?.provider_id;
+    if (discordId) {
+      const { data: discordRole } = await sb
+        .from("discord_roles")
+        .select("role")
+        .eq("discord_id", discordId)
+        .single();
+      if (discordRole) return discordRole.role as UserRole;
+    }
+    const { data: profile } = await sb
+      .from("profiles")
       .select("role")
-      .eq("discord_id", discordId)
+      .eq("id", supabaseUser.id)
       .single();
-    if (discordRole) return discordRole.role as UserRole;
+    return (profile?.role as UserRole) || "client";
+  } catch (err) {
+    console.error("Erro ao resolver role:", err);
+    return "client";
   }
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("role")
-    .eq("id", supabaseUser.id)
-    .single();
-  return (profile?.role as UserRole) || "client";
 }
 
 function supabaseUserToPublic(

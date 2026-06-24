@@ -49,3 +49,8 @@ CREATE POLICY profiles_insert ON profiles FOR INSERT WITH CHECK (auth.uid() = id
 CREATE POLICY profiles_update_own ON profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY profiles_update_admin ON profiles FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 CREATE POLICY profiles_delete_admin ON profiles FOR DELETE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+ALTER TABLE discord_roles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS discord_roles_select ON discord_roles;
+CREATE POLICY discord_roles_select ON discord_roles FOR SELECT USING (true);

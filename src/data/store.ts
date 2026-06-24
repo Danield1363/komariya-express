@@ -253,7 +253,7 @@ export const store = {
         employee_id: userId,
         active_orders: 0,
         max_orders: 3,
-        availability: "offline",
+        availability: "online",
         last_active: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }, { onConflict: "employee_id" });
@@ -308,7 +308,7 @@ export const store = {
 
   async getAvailableEmployees(): Promise<EmployeeStatus[]> {
     const all = await this.getEmployeeStatuses();
-    return all.filter((e) => e.availability === "online" && e.activeOrders < e.maxOrders);
+    return all.filter((e) => e.activeOrders < e.maxOrders);
   },
 
   async updateEmployeeAvailability(employeeId: string, availability: EmployeeAvailability): Promise<boolean> {
